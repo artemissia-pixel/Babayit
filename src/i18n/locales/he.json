@@ -1,0 +1,23 @@
+{
+  "map": {
+    "title": "בבית",
+    "loading": "טוען מפה...",
+    "noApartments": "אין דירות באזור זה כרגע",
+    "notifyMe": "הודע לי כשיהיה משהו כאן"
+  },
+  "apartment": {
+    "rooms": "חדרים",
+    "floor": "קומה",
+    "price": "₪{{amount}} לחודש",
+    "available": "כניסה מ-{{date}}",
+    "knocking": "בבית?",
+    "save": "שמור דירה",
+    "details": "פרטים נוספים"
+  },
+  "common": {
+    "close": "סגור",
+    "back": "חזור",
+    "yes": "כן",
+    "no": "לא"
+  }
+}

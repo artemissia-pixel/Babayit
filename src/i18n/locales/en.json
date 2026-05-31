@@ -1,0 +1,23 @@
+{
+  "map": {
+    "title": "BaBayit",
+    "loading": "Loading map...",
+    "noApartments": "No apartments in this area yet",
+    "notifyMe": "Notify me when something is here"
+  },
+  "apartment": {
+    "rooms": "rooms",
+    "floor": "floor",
+    "price": "₪{{amount}}/month",
+    "available": "From {{date}}",
+    "knocking": "Anyone home?",
+    "save": "Save apartment",
+    "details": "More details"
+  },
+  "common": {
+    "close": "Close",
+    "back": "Back",
+    "yes": "Yes",
+    "no": "No"
+  }
+}
