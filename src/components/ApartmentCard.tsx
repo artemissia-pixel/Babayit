@@ -1,3 +1,4 @@
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Apartment } from '@/constants/apartments'
 
@@ -8,90 +9,133 @@ interface Props {
 
 export function ApartmentCard({ apartment, onClose }: Props) {
   const { t } = useTranslation()
+  const totalPrice = apartment.price + apartment.bills
 
   return (
-    <div style={card}>
-      {/* Image placeholder */}
-      <div style={imagePlaceholder}>
-        <span style={{ fontSize: 48 }}>📷</span>
-        {apartment.isBrokerage && (
-          <div style={brokerageBadge}>{t('apartment.brokerageBadge')}</div>
-        )}
-      </div>
+    <>
+      {/* Backdrop */}
+      <div onClick={onClose} style={backdropStyle} />
 
-      <div style={body}>
-        {/* Header row */}
-        <div style={headerRow}>
-          <span style={price}>
-            {t('apartment.price', { amount: apartment.price.toLocaleString('he-IL') })}
-          </span>
-          <button onClick={onClose} style={closeBtn} aria-label="סגור">
-            {t('common.close')}
+      {/* Card */}
+      <div style={cardStyle} role="dialog" aria-modal="true">
+        {/* Drag handle */}
+        <div style={handleStyle} />
+
+        {/* Image placeholder */}
+        <div style={imageStyle}>
+          <span style={{ fontSize: 52, opacity: 0.4 }}>🏠</span>
+          {apartment.isBrokerage && (
+            <span style={brokerBadgeStyle}>{t('apartment.brokerageBadge')}</span>
+          )}
+          <button onClick={onClose} style={closeBtnStyle} aria-label={t('common.close')}>
+            ✕
           </button>
         </div>
 
-        <p style={address}>{apartment.address}</p>
+        {/* Body */}
+        <div style={bodyStyle}>
 
-        {/* Chips */}
-        <div style={chips}>
-          <Chip label={`${apartment.rooms} ${t('apartment.rooms')}`} />
-          <Chip label={`${t('apartment.floor')} ${apartment.floor}`} />
-          <Chip label={`${apartment.size} ${t('apartment.sqm')}`} />
+          {/* Total price — hero */}
+          <div style={priceRowStyle}>
+            <div>
+              <div style={totalPriceStyle}>
+                ₪{totalPrice.toLocaleString('he-IL')}
+                <span style={perMonthStyle}> / חודש</span>
+              </div>
+              <div style={priceBreakdownStyle}>
+                שכ"ד ₪{apartment.price.toLocaleString('he-IL')} + חשבונות ~₪{apartment.bills}
+              </div>
+            </div>
+          </div>
+
+          {/* Address */}
+          <p style={addressStyle}>{apartment.address}</p>
+
+          {/* Detail chips */}
+          <div style={chipsStyle}>
+            <Chip icon="🛏" label={`${apartment.rooms} ${t('apartment.rooms')}`} />
+            <Chip icon="🏢" label={`${t('apartment.floor')} ${apartment.floor}`} />
+            <Chip icon="📐" label={`${apartment.size} ${t('apartment.sqm')}`} />
+            <Chip icon="📅" label={apartment.availableFrom} />
+          </div>
+
+          {/* Action buttons */}
+          <div style={actionsStyle}>
+            <a
+              href={`tel:${apartment.phone}`}
+              style={{ ...actionBtnStyle, background: '#2D6A4F', color: '#fff', textDecoration: 'none' }}
+            >
+              <span style={btnIconStyle}>📞</span>
+              {apartment.phone}
+            </a>
+
+            {apartment.whatsapp && (
+              <a
+                href={`https://wa.me/${apartment.whatsapp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ ...actionBtnStyle, background: '#25D366', color: '#fff', textDecoration: 'none' }}
+              >
+                <span style={btnIconStyle}>💬</span>
+                וואטסאפ
+              </a>
+            )}
+          </div>
         </div>
-
-        <p style={available}>
-          {t('apartment.available', { date: apartment.availableFrom })}
-        </p>
-
-        <button style={knockBtn}>
-          {t('apartment.knocking')}
-        </button>
       </div>
-    </div>
+    </>
   )
 }
 
-function Chip({ label }: { label: string }) {
+function Chip({ icon, label }: { icon: string; label: string }) {
   return (
-    <span style={{
-      background: '#F8F9FA',
-      border: '1px solid #DEE2E6',
-      borderRadius: 8,
-      padding: '4px 10px',
-      fontSize: 13,
-      color: '#1B1B1B',
-    }}>
+    <span style={chipStyle}>
+      <span style={{ marginLeft: 4 }}>{icon}</span>
       {label}
     </span>
   )
 }
 
-// Inline styles (no CSS module deps, keeps it self-contained)
-const card: React.CSSProperties = {
+const backdropStyle: React.CSSProperties = {
   position: 'absolute',
-  bottom: 32,
-  right: 16,
-  left: 16,
-  maxWidth: 420,
-  margin: '0 auto',
-  background: '#fff',
-  borderRadius: 16,
-  boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-  overflow: 'hidden',
-  zIndex: 20,
-  direction: 'rtl',
+  inset: 0,
+  zIndex: 19,
 }
 
-const imagePlaceholder: React.CSSProperties = {
-  height: 160,
-  background: '#F8F9FA',
+const cardStyle: React.CSSProperties = {
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  background: '#fff',
+  borderRadius: '20px 20px 0 0',
+  boxShadow: '0 -4px 32px rgba(0,0,0,0.18)',
+  zIndex: 20,
+  direction: 'rtl',
+  animation: 'slideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1)',
+  maxHeight: '90vh',
+  overflowY: 'auto',
+}
+
+const handleStyle: React.CSSProperties = {
+  width: 40,
+  height: 4,
+  background: '#DEE2E6',
+  borderRadius: 2,
+  margin: '12px auto 0',
+}
+
+const imageStyle: React.CSSProperties = {
+  height: 180,
+  background: '#F0F4F2',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   position: 'relative',
+  marginTop: 8,
 }
 
-const brokerageBadge: React.CSSProperties = {
+const brokerBadgeStyle: React.CSSProperties = {
   position: 'absolute',
   top: 12,
   right: 12,
@@ -103,57 +147,91 @@ const brokerageBadge: React.CSSProperties = {
   fontWeight: 600,
 }
 
-const body: React.CSSProperties = {
-  padding: 16,
-}
-
-const headerRow: React.CSSProperties = {
+const closeBtnStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: 12,
+  left: 12,
+  background: 'rgba(0,0,0,0.35)',
+  color: '#fff',
+  borderRadius: '50%',
+  width: 32,
+  height: 32,
   display: 'flex',
-  justifyContent: 'space-between',
   alignItems: 'center',
-  marginBottom: 4,
-}
-
-const price: React.CSSProperties = {
-  fontSize: 20,
-  fontWeight: 700,
-  color: '#2D6A4F',
-}
-
-const closeBtn: React.CSSProperties = {
-  background: 'none',
-  fontSize: 16,
-  color: '#6C757D',
-  padding: 4,
+  justifyContent: 'center',
+  fontSize: 14,
   lineHeight: 1,
 }
 
-const address: React.CSSProperties = {
+const bodyStyle: React.CSSProperties = {
+  padding: '16px 16px 32px',
+}
+
+const priceRowStyle: React.CSSProperties = {
+  marginBottom: 6,
+}
+
+const totalPriceStyle: React.CSSProperties = {
+  fontSize: 26,
+  fontWeight: 800,
+  color: '#2D6A4F',
+  lineHeight: 1.2,
+}
+
+const perMonthStyle: React.CSSProperties = {
+  fontSize: 15,
+  fontWeight: 500,
+  color: '#6C757D',
+}
+
+const priceBreakdownStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: '#6C757D',
+  marginTop: 2,
+}
+
+const addressStyle: React.CSSProperties = {
   fontSize: 14,
   color: '#6C757D',
-  marginBottom: 10,
+  marginBottom: 14,
+  marginTop: 6,
 }
 
-const chips: React.CSSProperties = {
+const chipsStyle: React.CSSProperties = {
   display: 'flex',
-  flexDirection: 'row-reverse',
   flexWrap: 'wrap',
   gap: 8,
-  marginBottom: 10,
+  marginBottom: 20,
 }
 
-const available: React.CSSProperties = {
+const chipStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  background: '#F0F4F2',
+  borderRadius: 8,
+  padding: '5px 10px',
   fontSize: 13,
-  color: '#6C757D',
-  marginBottom: 14,
+  color: '#1B1B1B',
+  fontWeight: 500,
 }
 
-const knockBtn: React.CSSProperties = {
-  width: '100%',
-  background: '#2D6A4F',
-  color: '#fff',
+const actionsStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 10,
+}
+
+const actionBtnStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
   borderRadius: 12,
   padding: '14px 0',
   fontSize: 16,
   fontWeight: 700,
+}
+
+const btnIconStyle: React.CSSProperties = {
+  fontSize: 18,
 }
