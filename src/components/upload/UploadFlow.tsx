@@ -7,7 +7,6 @@ import { Step3Submit } from './Step3Submit'
 export interface UploadData {
   photos: string[]
   price: number
-  // bills field is REMOVED — total bills = arnona + avgBills (computed on publish)
   rooms: number
   floor: number
   availableFrom: string
@@ -18,11 +17,13 @@ export interface UploadData {
   whatsappEnabled: boolean
   // optional extras
   size: number
-  arnona: number
-  avgBills: number
-  suppliers: string
+  billElec: number;    billElecProvider: string
+  billWater: number;   billWaterProvider: string
+  billArnona: number;  billArnonaProvider: string
+  billGas: number;     billGasProvider: string
+  billVaad: number;    billVaadProvider: string
+  billInternet: number; billInternetProvider: string; internetType: 'fiber' | 'cable' | null
   ac: boolean | null
-  internet: boolean | null
   elevator: boolean | null
   parking: boolean | null
   storage: boolean | null
@@ -48,11 +49,13 @@ const EMPTY: UploadData = {
   phone: '',
   whatsappEnabled: false,
   size: 0,
-  arnona: 0,
-  avgBills: 0,
-  suppliers: '',
+  billElec: 0,    billElecProvider: '',
+  billWater: 0,   billWaterProvider: '',
+  billArnona: 0,  billArnonaProvider: '',
+  billGas: 0,     billGasProvider: '',
+  billVaad: 0,    billVaadProvider: '',
+  billInternet: 0, billInternetProvider: '', internetType: null,
   ac: null,
-  internet: null,
   elevator: null,
   parking: null,
   storage: null,
@@ -72,8 +75,7 @@ function apartmentToUploadData(apt: Apartment): UploadData {
     ...EMPTY,
     photos: apt.photos ?? [],
     price: apt.price,
-    arnona: 0,
-    avgBills: apt.bills,   // reverse: store in avgBills; arnona unknown
+    billVaad: apt.bills,   // best-effort: lump prior bills into ועד בית
     rooms: apt.rooms,
     floor: apt.floor,
     size: apt.size,
@@ -127,7 +129,9 @@ export function UploadFlow({ onClose, onPublish, editApartment }: Props) {
   const handleSubmit = () => {
     setSubmitting(true)
     setTimeout(() => {
-      const computedBills = data.arnona + data.avgBills
+      const computedBills =
+        data.billElec + data.billWater + data.billArnona +
+        data.billGas + data.billVaad + data.billInternet
       const apt: Apartment = {
         id: editApartment?.id ?? `user-${Date.now()}`,
         lat: data.lat || 32.0853,

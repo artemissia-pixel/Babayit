@@ -4,11 +4,10 @@ import { UploadData } from './UploadFlow'
 interface Props {
   data: UploadData
   onChange: (data: Partial<UploadData>) => void
-  onTryNext: () => void          // called by parent's "הבא" button
+  onTryNext: () => void
   registerValidator: (fn: () => boolean) => void
 }
 
-// Field IDs for scroll-to-error
 const FIELD_IDS = {
   price: 'field-price',
   rooms: 'field-rooms',
@@ -27,10 +26,7 @@ export function Step2Details({ data, onChange, registerValidator }: Props) {
   const [expanded, setExpanded] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Register a validate-and-scroll function the parent footer button calls
-  useEffect(() => {
-    registerValidator(validate)
-  })
+  useEffect(() => { registerValidator(validate) })
 
   useEffect(() => {
     if (addressMode === 'gps' && data.lat === 0) locateMe()
@@ -40,100 +36,67 @@ export function Step2Details({ data, onChange, registerValidator }: Props) {
     setLocating(true)
     setLocError('')
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        onChange({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-        setLocating(false)
-      },
-      () => {
-        setLocError('לא ניתן לאתר מיקום. בדקו הרשאות או הקלידו כתובת.')
-        setLocating(false)
-        setAddressMode('manual')
-      },
+      (pos) => { onChange({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setLocating(false) },
+      () => { setLocError('לא ניתן לאתר מיקום. בדקו הרשאות או הקלידו כתובת.'); setLocating(false); setAddressMode('manual') },
       { timeout: 8000 }
     )
   }
 
   const validate = (): boolean => {
-    const newErrors: Record<string, string> = {}
-    if (!data.price || data.price <= 0) newErrors[FIELD_IDS.price] = 'נא להזין שכר דירה'
-    if (!data.rooms) newErrors[FIELD_IDS.rooms] = 'נא לבחור מספר חדרים'
-    if (data.floor === undefined || data.floor === null || String(data.floor) === '')
-      newErrors[FIELD_IDS.floor] = 'נא להזין קומה'
-    if (!data.availableFrom) newErrors[FIELD_IDS.availableFrom] = 'נא לבחור תאריך כניסה'
-    if (addressMode === 'manual' && !data.address.trim())
-      newErrors[FIELD_IDS.location] = 'נא להזין כתובת'
-    if (addressMode === 'gps' && data.lat === 0)
-      newErrors[FIELD_IDS.location] = 'נא לאתר מיקום או להחליף לכתובת ידנית'
-    if (!data.phone.trim()) newErrors[FIELD_IDS.phone] = 'נא להזין מספר טלפון'
-
-    setErrors(newErrors)
-
-    if (Object.keys(newErrors).length > 0) {
-      const firstId = Object.keys(newErrors)[0]
-      const el = document.getElementById(firstId)
-      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    const e: Record<string, string> = {}
+    if (!data.price || data.price <= 0) e[FIELD_IDS.price] = 'נא להזין שכר דירה'
+    if (!data.rooms) e[FIELD_IDS.rooms] = 'נא לבחור מספר חדרים'
+    if (data.floor === undefined || data.floor === null || String(data.floor) === '') e[FIELD_IDS.floor] = 'נא להזין קומה'
+    if (!data.availableFrom) e[FIELD_IDS.availableFrom] = 'נא לבחור תאריך כניסה'
+    if (addressMode === 'manual' && !data.address.trim()) e[FIELD_IDS.location] = 'נא להזין כתובת'
+    if (addressMode === 'gps' && data.lat === 0) e[FIELD_IDS.location] = 'נא לאתר מיקום או להחליף לכתובת ידנית'
+    if (!data.phone.trim()) e[FIELD_IDS.phone] = 'נא להזין מספר טלפון'
+    setErrors(e)
+    if (Object.keys(e).length > 0) {
+      document.getElementById(Object.keys(e)[0])?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       return false
     }
     return true
   }
 
-  const addCustomField = () =>
-    onChange({ customFields: [...data.customFields, { label: '', value: '' }] })
+  const clrErr = (id: string) => setErrors((prev) => { const n = { ...prev }; delete n[id]; return n })
 
+  const totalBills =
+    data.billElec + data.billWater + data.billArnona +
+    data.billGas + data.billVaad + data.billInternet
+
+  const addCustomField = () => onChange({ customFields: [...data.customFields, { label: '', value: '' }] })
   const updateCustomField = (i: number, key: 'label' | 'value', val: string) =>
     onChange({ customFields: data.customFields.map((f, idx) => idx === i ? { ...f, [key]: val } : f) })
-
   const removeCustomField = (i: number) =>
     onChange({ customFields: data.customFields.filter((_, idx) => idx !== i) })
-
-  const clearError = (id: string) =>
-    setErrors((prev) => { const next = { ...prev }; delete next[id]; return next })
 
   return (
     <div style={wrapper}>
 
-      {/* ── Optional expander — top ─────────────────────── */}
-      <button style={expanderBtn} onClick={() => setExpanded((v) => !v)}>
-        <span>פרטים נוספים (אופציונלי)</span>
-        <span style={expanderArrow}>{expanded ? '▲' : '▼'}</span>
-      </button>
-
-      {/* ── Required fields ─────────────────────────────── */}
+      {/* ── Required fields ─────────────────────────── */}
 
       <Field id={FIELD_IDS.price} label="שכר דירה (₪ לחודש)" required error={errors[FIELD_IDS.price]}>
         <input
-          style={inputStyleFor(!!errors[FIELD_IDS.price])}
-          type="number"
-          inputMode="numeric"
-          placeholder="6500"
+          style={iS(!!errors[FIELD_IDS.price])} type="number" inputMode="numeric" placeholder="6500"
           value={data.price || ''}
-          onChange={(e) => { onChange({ price: Number(e.target.value) }); clearError(FIELD_IDS.price) }}
+          onChange={(e) => { onChange({ price: Number(e.target.value) }); clrErr(FIELD_IDS.price) }}
         />
       </Field>
 
-      {/* Rooms + Floor + Elevator */}
       <div style={threeCol}>
         <Field id={FIELD_IDS.rooms} label="חדרים" required error={errors[FIELD_IDS.rooms]}>
-          <select
-            style={inputStyleFor(!!errors[FIELD_IDS.rooms])}
-            value={data.rooms || ''}
-            onChange={(e) => { onChange({ rooms: Number(e.target.value) }); clearError(FIELD_IDS.rooms) }}
-          >
+          <select style={iS(!!errors[FIELD_IDS.rooms])} value={data.rooms || ''}
+            onChange={(e) => { onChange({ rooms: Number(e.target.value) }); clrErr(FIELD_IDS.rooms) }}>
             <option value="">-</option>
-            {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6].map((r) => (
-              <option key={r} value={r}>{r}</option>
-            ))}
+            {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6].map((r) => <option key={r} value={r}>{r}</option>)}
           </select>
         </Field>
 
         <Field id={FIELD_IDS.floor} label="קומה" required error={errors[FIELD_IDS.floor]}>
-          <input
-            style={inputStyleFor(!!errors[FIELD_IDS.floor])}
-            type="number"
-            inputMode="numeric"
-            placeholder="3"
+          <input style={iS(!!errors[FIELD_IDS.floor])} type="number" inputMode="numeric" placeholder="3"
             value={data.floor === 0 ? '' : (data.floor ?? '')}
-            onChange={(e) => { onChange({ floor: e.target.value === '' ? 0 : Number(e.target.value) }); clearError(FIELD_IDS.floor) }}
+            onChange={(e) => { onChange({ floor: e.target.value === '' ? 0 : Number(e.target.value) }); clrErr(FIELD_IDS.floor) }}
           />
         </Field>
 
@@ -143,115 +106,90 @@ export function Step2Details({ data, onChange, registerValidator }: Props) {
       </div>
 
       <Field id={FIELD_IDS.availableFrom} label="תאריך כניסה" required error={errors[FIELD_IDS.availableFrom]}>
-        <input
-          style={inputStyleFor(!!errors[FIELD_IDS.availableFrom])}
-          type="date"
-          value={data.availableFrom}
+        <input style={iS(!!errors[FIELD_IDS.availableFrom])} type="date" value={data.availableFrom}
           min={new Date().toISOString().split('T')[0]}
-          onChange={(e) => { onChange({ availableFrom: e.target.value }); clearError(FIELD_IDS.availableFrom) }}
+          onChange={(e) => { onChange({ availableFrom: e.target.value }); clrErr(FIELD_IDS.availableFrom) }}
         />
       </Field>
 
       <Field id={FIELD_IDS.location} label="מיקום" required error={errors[FIELD_IDS.location]}>
         <div style={toggleRow}>
-          <button
-            style={{ ...toggleBtn, ...(addressMode === 'gps' ? toggleActive : {}) }}
-            onClick={() => { setAddressMode('gps'); clearError(FIELD_IDS.location) }}
-          >
-            📍 GPS
-          </button>
-          <button
-            style={{ ...toggleBtn, ...(addressMode === 'manual' ? toggleActive : {}) }}
-            onClick={() => setAddressMode('manual')}
-          >
-            ✏️ כתובת ידנית
-          </button>
+          <button style={{ ...toggleBtn, ...(addressMode === 'gps' ? toggleActive : {}) }}
+            onClick={() => { setAddressMode('gps'); clrErr(FIELD_IDS.location) }}>📍 GPS</button>
+          <button style={{ ...toggleBtn, ...(addressMode === 'manual' ? toggleActive : {}) }}
+            onClick={() => setAddressMode('manual')}>✏️ כתובת ידנית</button>
         </div>
-
         {addressMode === 'gps' && (
           <div style={{ ...gpsBox, ...(errors[FIELD_IDS.location] ? gpsBoxError : {}) }}>
             {locating && <span style={locatingText}>מאתר מיקום...</span>}
-            {!locating && data.lat !== 0 && (
-              <span style={locOk}>✓ מיקום נמצא ({data.lat.toFixed(4)}, {data.lng.toFixed(4)})</span>
-            )}
-            {locError && <span style={locErrStyle}>{locError}</span>}
+            {!locating && data.lat !== 0 && <span style={locOk}>✓ מיקום נמצא ({data.lat.toFixed(4)}, {data.lng.toFixed(4)})</span>}
+            {locError && <span style={locErrTxt}>{locError}</span>}
             {!locating && (
-              <button style={retryBtn} onClick={() => { locateMe(); clearError(FIELD_IDS.location) }}>
+              <button style={retryBtn} onClick={() => { locateMe(); clrErr(FIELD_IDS.location) }}>
                 {data.lat !== 0 ? 'עדכן מיקום' : 'נסה שוב'}
               </button>
             )}
           </div>
         )}
-
         {addressMode === 'manual' && (
-          <input
-            style={{ ...inputStyleFor(!!errors[FIELD_IDS.location]), marginTop: 8 }}
-            type="text"
-            placeholder="רחוב, מספר, עיר"
-            value={data.address}
-            onChange={(e) => { onChange({ address: e.target.value }); clearError(FIELD_IDS.location) }}
+          <input style={{ ...iS(!!errors[FIELD_IDS.location]), marginTop: 8 }} type="text"
+            placeholder="רחוב, מספר, עיר" value={data.address}
+            onChange={(e) => { onChange({ address: e.target.value }); clrErr(FIELD_IDS.location) }}
           />
         )}
       </Field>
 
-      <Field id={FIELD_IDS.phone} label="טלפון ליצירת קשר" required error={errors[FIELD_IDS.phone]}>
-        <input
-          style={inputStyleFor(!!errors[FIELD_IDS.phone])}
-          type="tel"
-          inputMode="tel"
-          placeholder="05X-XXXXXXX"
-          value={data.phone}
-          onChange={(e) => { onChange({ phone: e.target.value }); clearError(FIELD_IDS.phone) }}
-        />
-      </Field>
+      {/* ── Optional expander — right before contact ─── */}
+      <button style={expanderBtn} onClick={() => setExpanded((v) => !v)}>
+        <span>פרטים נוספים (אופציונלי)</span>
+        <span style={expanderArrow}>{expanded ? '▲' : '▼'}</span>
+      </button>
 
-      <div style={waRow}>
-        <label style={waLabel} htmlFor="wa-toggle">פתוח לפניות וואטסאפ</label>
-        <input
-          id="wa-toggle"
-          type="checkbox"
-          style={waCheckbox}
-          checked={data.whatsappEnabled}
-          onChange={(e) => onChange({ whatsappEnabled: e.target.checked })}
-        />
-      </div>
-
-      {/* ── Optional section ─────────────────────────────── */}
       {expanded && (
         <div style={optionalSection}>
-          <div style={optionalDivider}>
-            <span style={optionalDividerText}>פרטים נוספים</span>
-          </div>
 
-          <div style={twoCol}>
-            <Field label='שטח (מ"ר)'>
-              <input style={inputStyle} type="number" inputMode="numeric" placeholder="75"
-                value={data.size || ''} onChange={(e) => onChange({ size: Number(e.target.value) })} />
-            </Field>
-            <Field label="ארנונה (₪/חודש)">
-              <input style={inputStyle} type="number" inputMode="numeric" placeholder="350"
-                value={data.arnona || ''} onChange={(e) => onChange({ arnona: Number(e.target.value) })} />
-            </Field>
-          </div>
-
-          <Field label="חשמל + מים ממוצע (₪/חודש)">
-            <input style={inputStyle} type="number" inputMode="numeric" placeholder="250"
-              value={data.avgBills || ''} onChange={(e) => onChange({ avgBills: Number(e.target.value) })} />
-            {(data.arnona > 0 || data.avgBills > 0) && (
-              <span style={billsPreview}>
-                סה"כ חשבונות: ~₪{(data.arnona + data.avgBills).toLocaleString('he-IL')} | מחיר כולל: ~₪{(data.price + data.arnona + data.avgBills).toLocaleString('he-IL')}
-              </span>
-            )}
+          <Field label='שטח (מ"ר)'>
+            <input style={inputStyle} type="number" inputMode="numeric" placeholder="75"
+              value={data.size || ''} onChange={(e) => onChange({ size: Number(e.target.value) })} />
           </Field>
 
-          <Field label="ספקים (חשמל, גז, אינטרנט...)">
-            <input style={inputStyle} type="text" placeholder="חברת חשמל, פרטנר..."
-              value={data.suppliers} onChange={(e) => onChange({ suppliers: e.target.value })} />
-          </Field>
+          {/* Per-bill rows */}
+          <div style={billsSectionLabel}>חשבונות חודשיים (₪ + ספק)</div>
+
+          <BillRow label="חשמל" amount={data.billElec} provider={data.billElecProvider}
+            onAmount={(v) => onChange({ billElec: v })} onProvider={(v) => onChange({ billElecProvider: v })} />
+          <BillRow label="מים" amount={data.billWater} provider={data.billWaterProvider}
+            onAmount={(v) => onChange({ billWater: v })} onProvider={(v) => onChange({ billWaterProvider: v })} />
+          <BillRow label="ארנונה" amount={data.billArnona} provider={data.billArnonaProvider}
+            onAmount={(v) => onChange({ billArnona: v })} onProvider={(v) => onChange({ billArnonaProvider: v })} />
+          <BillRow label="גז" amount={data.billGas} provider={data.billGasProvider}
+            onAmount={(v) => onChange({ billGas: v })} onProvider={(v) => onChange({ billGasProvider: v })} />
+          <BillRow label="ועד בית" amount={data.billVaad} provider={data.billVaadProvider}
+            onAmount={(v) => onChange({ billVaad: v })} onProvider={(v) => onChange({ billVaadProvider: v })} />
+
+          {/* Internet — extra toggle */}
+          <div style={internetRow}>
+            <div style={{ flex: 1 }}>
+              <BillRow label="אינטרנט" amount={data.billInternet} provider={data.billInternetProvider}
+                onAmount={(v) => onChange({ billInternet: v })} onProvider={(v) => onChange({ billInternetProvider: v })} />
+            </div>
+            <div style={fiberToggle}>
+              <button style={{ ...fiberBtn, ...(data.internetType === 'fiber' ? fiberActive : {}) }}
+                onClick={() => onChange({ internetType: data.internetType === 'fiber' ? null : 'fiber' })}>סיבים</button>
+              <button style={{ ...fiberBtn, ...(data.internetType === 'cable' ? fiberActive : {}) }}
+                onClick={() => onChange({ internetType: data.internetType === 'cable' ? null : 'cable' })}>רגיל</button>
+            </div>
+          </div>
+
+          {totalBills > 0 && (
+            <div style={billsTotal}>
+              סה"כ חשבונות: ~₪{totalBills.toLocaleString('he-IL')} / חודש
+              <span style={billsTotalPrice}> | כולל שכ"ד: ₪{(data.price + totalBills).toLocaleString('he-IL')}</span>
+            </div>
+          )}
 
           <div style={toggleGrid}>
             <ToggleField label="מיזוג" value={data.ac} onChange={(v) => onChange({ ac: v })} />
-            <ToggleField label="אינטרנט" value={data.internet} onChange={(v) => onChange({ internet: v })} />
             <ToggleField label="חניה" value={data.parking} onChange={(v) => onChange({ parking: v })} />
             <ToggleField label="מחסן" value={data.storage} onChange={(v) => onChange({ storage: v })} />
           </div>
@@ -304,31 +242,54 @@ export function Step2Details({ data, onChange, registerValidator }: Props) {
           <button style={addFieldBtn} onClick={addCustomField}>+ הוסף שדה חופשי</button>
         </div>
       )}
+
+      {/* ── Contact fields ──────────────────────────── */}
+      <Field id={FIELD_IDS.phone} label="טלפון ליצירת קשר" required error={errors[FIELD_IDS.phone]}>
+        <input style={iS(!!errors[FIELD_IDS.phone])} type="tel" inputMode="tel" placeholder="05X-XXXXXXX"
+          value={data.phone} onChange={(e) => { onChange({ phone: e.target.value }); clrErr(FIELD_IDS.phone) }}
+        />
+      </Field>
+
+      <div style={waRow}>
+        <label style={waLabel} htmlFor="wa-toggle">פתוח לפניות וואטסאפ</label>
+        <input id="wa-toggle" type="checkbox" style={waCheckbox}
+          checked={data.whatsappEnabled}
+          onChange={(e) => onChange({ whatsappEnabled: e.target.checked })} />
+      </div>
+
     </div>
   )
 }
 
 // ── Sub-components ─────────────────────────────────────────
 
-function Field({
-  id,
-  label,
-  required,
-  error,
-  children,
-}: {
-  id?: string
-  label: string
-  required?: boolean
-  error?: string
-  children: React.ReactNode
+function BillRow({ label, amount, provider, onAmount, onProvider }: {
+  label: string; amount: number; provider: string
+  onAmount: (v: number) => void; onProvider: (v: string) => void
+}) {
+  return (
+    <div style={billRow}>
+      <span style={billLabel}>{label}</span>
+      <input
+        style={{ ...inputStyle, width: 80, flexShrink: 0, textAlign: 'center' }}
+        type="number" inputMode="numeric" placeholder="₪"
+        value={amount || ''} onChange={(e) => onAmount(Number(e.target.value))}
+      />
+      <input
+        style={{ ...inputStyle, flex: 1, fontSize: 13 }}
+        type="text" placeholder="ספק"
+        value={provider} onChange={(e) => onProvider(e.target.value)}
+      />
+    </div>
+  )
+}
+
+function Field({ id, label, required, error, children }: {
+  id?: string; label: string; required?: boolean; error?: string; children: React.ReactNode
 }) {
   return (
     <div id={id} style={fieldWrapper}>
-      <label style={labelStyle}>
-        {label}
-        {required && <span style={asterisk}> *</span>}
-      </label>
+      <label style={labelStyle}>{label}{required && <span style={asterisk}> *</span>}</label>
       {children}
       {error && <span style={errorMsg}>{error}</span>}
     </div>
@@ -367,10 +328,8 @@ function ToggleField({ label, value, onChange }: { label: string; value: boolean
 
 function Pill({ active, danger, onClick, children }: { active: boolean; danger?: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button
-      onClick={onClick}
-      style={{ ...pillBase, ...(active ? (danger ? pillDanger : pillActive) : {}) }}
-    >
+    <button onClick={onClick}
+      style={{ ...pillBase, ...(active ? (danger ? pillDanger : pillActive) : {}) }}>
       {children}
     </button>
   )
@@ -390,55 +349,36 @@ const inputStyle: React.CSSProperties = {
   fontFamily: 'inherit', boxSizing: 'border-box',
 }
 
-const inputStyleFor = (hasError: boolean): React.CSSProperties => ({
+const iS = (hasError: boolean): React.CSSProperties => ({
   ...inputStyle,
   ...(hasError ? { border: '1.5px solid #DC3545', background: '#FFF8F8' } : {}),
 })
 
-const errorMsg: React.CSSProperties = {
-  fontSize: 12, color: '#DC3545', textAlign: 'right', marginTop: 2,
-}
-
-const billsPreview: React.CSSProperties = {
-  fontSize: 11, color: '#2D6A4F', fontWeight: 600, textAlign: 'right', marginTop: 4,
-}
-
+const errorMsg: React.CSSProperties = { fontSize: 12, color: '#DC3545', textAlign: 'right', marginTop: 2 }
 const twoCol: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }
 const threeCol: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }
 
 const toggleRow: React.CSSProperties = { display: 'flex', gap: 8, flexDirection: 'row-reverse', marginBottom: 4 }
-
 const toggleBtn: React.CSSProperties = {
-  flex: 1, padding: '9px 0', borderRadius: 10,
-  border: '1.5px solid #DEE2E6', background: '#F8F9FA',
-  fontSize: 13, color: '#6C757D', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+  flex: 1, padding: '9px 0', borderRadius: 10, border: '1.5px solid #DEE2E6',
+  background: '#F8F9FA', fontSize: 13, color: '#6C757D', fontWeight: 600,
+  cursor: 'pointer', fontFamily: 'inherit',
 }
 const toggleActive: React.CSSProperties = { border: '1.5px solid #2D6A4F', background: '#EAF2EE', color: '#2D6A4F' }
 
 const gpsBox: React.CSSProperties = {
-  display: 'flex', flexDirection: 'column', gap: 6,
-  padding: '10px 12px', background: '#F8FCF9',
-  borderRadius: 10, border: '1.5px solid #B7D5C8',
-}
-const gpsBoxError: React.CSSProperties = { border: '1.5px solid #DC3545', background: '#FFF8F8' }
-
-const locatingText: React.CSSProperties = { fontSize: 13, color: '#6C757D' }
-const locOk: React.CSSProperties = { fontSize: 13, color: '#2D6A4F', fontWeight: 600 }
-const locErrStyle: React.CSSProperties = { fontSize: 12, color: '#DC3545' }
-
-const retryBtn: React.CSSProperties = {
-  alignSelf: 'flex-end', background: 'none', border: 'none',
-  fontSize: 12, color: '#2D6A4F', fontWeight: 600,
-  cursor: 'pointer', padding: 0, fontFamily: 'inherit', textDecoration: 'underline',
-}
-
-const waRow: React.CSSProperties = {
-  display: 'flex', flexDirection: 'row-reverse', alignItems: 'center',
-  justifyContent: 'space-between', padding: '12px 14px',
+  display: 'flex', flexDirection: 'column', gap: 6, padding: '10px 12px',
   background: '#F8FCF9', borderRadius: 10, border: '1.5px solid #B7D5C8',
 }
-const waLabel: React.CSSProperties = { fontSize: 14, fontWeight: 600, color: '#1B1B1B' }
-const waCheckbox: React.CSSProperties = { width: 20, height: 20, accentColor: '#2D6A4F', cursor: 'pointer' }
+const gpsBoxError: React.CSSProperties = { border: '1.5px solid #DC3545', background: '#FFF8F8' }
+const locatingText: React.CSSProperties = { fontSize: 13, color: '#6C757D' }
+const locOk: React.CSSProperties = { fontSize: 13, color: '#2D6A4F', fontWeight: 600 }
+const locErrTxt: React.CSSProperties = { fontSize: 12, color: '#DC3545' }
+const retryBtn: React.CSSProperties = {
+  alignSelf: 'flex-end', background: 'none', border: 'none', fontSize: 12,
+  color: '#2D6A4F', fontWeight: 600, cursor: 'pointer', padding: 0,
+  fontFamily: 'inherit', textDecoration: 'underline',
+}
 
 const expanderBtn: React.CSSProperties = {
   display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between',
@@ -448,16 +388,43 @@ const expanderBtn: React.CSSProperties = {
 }
 const expanderArrow: React.CSSProperties = { fontSize: 10, color: '#6C757D' }
 
-const optionalSection: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 14, padding: '4px 0' }
+const optionalSection: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 12 }
 
-const optionalDivider: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: 8,
-}
-const optionalDividerText: React.CSSProperties = {
-  fontSize: 12, color: '#ADB5BD', fontWeight: 600, whiteSpace: 'nowrap',
+const billsSectionLabel: React.CSSProperties = {
+  fontSize: 12, fontWeight: 700, color: '#6C757D',
+  textAlign: 'right', textTransform: 'uppercase', letterSpacing: 0.5,
 }
 
-const toggleGrid: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }
+const billRow: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: 8, direction: 'rtl',
+}
+
+const billLabel: React.CSSProperties = {
+  fontSize: 13, fontWeight: 600, color: '#1B1B1B',
+  width: 52, flexShrink: 0, textAlign: 'right',
+}
+
+const internetRow: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 6 }
+
+const fiberToggle: React.CSSProperties = {
+  display: 'flex', gap: 6, paddingRight: 60,
+}
+
+const fiberBtn: React.CSSProperties = {
+  flex: 1, padding: '6px 0', borderRadius: 8, border: '1.5px solid #DEE2E6',
+  background: '#F8F9FA', fontSize: 12, fontWeight: 600, color: '#6C757D',
+  cursor: 'pointer', fontFamily: 'inherit',
+}
+const fiberActive: React.CSSProperties = { background: '#EAF2EE', border: '1.5px solid #2D6A4F', color: '#2D6A4F' }
+
+const billsTotal: React.CSSProperties = {
+  fontSize: 12, color: '#6C757D', textAlign: 'right',
+  padding: '8px 12px', background: '#F8FCF9',
+  borderRadius: 8, border: '1px solid #B7D5C8',
+}
+const billsTotalPrice: React.CSSProperties = { fontWeight: 700, color: '#2D6A4F' }
+
+const toggleGrid: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }
 const toggleFieldWrap: React.CSSProperties = {
   display: 'flex', flexDirection: 'column', gap: 6, padding: '10px 12px',
   background: '#F8F9FA', borderRadius: 10, border: '1.5px solid #DEE2E6',
@@ -466,13 +433,20 @@ const toggleFieldLabel: React.CSSProperties = { fontSize: 13, fontWeight: 600, c
 const yesNoRow: React.CSSProperties = { display: 'flex', gap: 6 }
 
 const pillBase: React.CSSProperties = {
-  flex: 1, padding: '7px 0', borderRadius: 8,
-  border: '1.5px solid #DEE2E6', background: '#F8F9FA',
-  fontSize: 13, fontWeight: 600, color: '#6C757D',
+  flex: 1, padding: '7px 0', borderRadius: 8, border: '1.5px solid #DEE2E6',
+  background: '#F8F9FA', fontSize: 13, fontWeight: 600, color: '#6C757D',
   cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.12s',
 }
 const pillActive: React.CSSProperties = { background: '#EAF2EE', border: '1.5px solid #2D6A4F', color: '#2D6A4F' }
 const pillDanger: React.CSSProperties = { background: '#FFF0F0', border: '1.5px solid #DC3545', color: '#DC3545' }
+
+const waRow: React.CSSProperties = {
+  display: 'flex', flexDirection: 'row-reverse', alignItems: 'center',
+  justifyContent: 'space-between', padding: '12px 14px',
+  background: '#F8FCF9', borderRadius: 10, border: '1.5px solid #B7D5C8',
+}
+const waLabel: React.CSSProperties = { fontSize: 14, fontWeight: 600, color: '#1B1B1B' }
+const waCheckbox: React.CSSProperties = { width: 20, height: 20, accentColor: '#2D6A4F', cursor: 'pointer' }
 
 const customFieldRow: React.CSSProperties = { display: 'flex', gap: 8, alignItems: 'center' }
 const removeFieldBtn: React.CSSProperties = {
@@ -484,4 +458,3 @@ const addFieldBtn: React.CSSProperties = {
   padding: '10px 0', width: '100%', fontSize: 14, fontWeight: 600,
   color: '#2D6A4F', cursor: 'pointer', fontFamily: 'inherit',
 }
-

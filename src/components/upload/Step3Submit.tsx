@@ -8,7 +8,9 @@ interface Props {
 }
 
 export function Step3Submit({ data, submitting, onSubmit }: Props) {
-  const computedBills = (data.arnona || 0) + (data.avgBills || 0)
+  const computedBills =
+    data.billElec + data.billWater + data.billArnona +
+    data.billGas + data.billVaad + data.billInternet
   const totalPrice = (data.price || 0) + computedBills
 
   return (

@@ -91,7 +91,9 @@ export function ApartmentCard({ apartment, onClose, onEdit }: Props) {
           <div style={priceRowStyle}>
             <div style={totalPriceStyle}>
               ₪{totalPrice.toLocaleString('he-IL')}
-              <span style={perMonthStyle}> / חודש</span>
+              <span style={perMonthStyle}>
+                {apartment.bills > 0 ? ' כולל חשבונות' : ' + חשבונות'}
+              </span>
             </div>
             {apartment.bills > 0 && (
               <div style={priceBreakdownStyle}>
