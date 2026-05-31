@@ -23,7 +23,7 @@ export function ApartmentCard({ apartment, onClose }: Props) {
 
         {/* Image placeholder */}
         <div style={imageStyle}>
-          <span style={{ fontSize: 52, opacity: 0.4 }}>🏠</span>
+          <span style={{ fontSize: 28, opacity: 0.35 }}>🏠</span>
           {apartment.isBrokerage && (
             <span style={brokerBadgeStyle}>{t('apartment.brokerageBadge')}</span>
           )}
@@ -126,26 +126,26 @@ const cardStyle: React.CSSProperties = {
   zIndex: 20,
   direction: 'rtl',
   animation: 'slideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1)',
-  maxHeight: '90vh',
+  maxHeight: '58vh',
   overflowY: 'auto',
 }
 
 const handleStyle: React.CSSProperties = {
-  width: 40,
+  width: 36,
   height: 4,
   background: '#DEE2E6',
   borderRadius: 2,
-  margin: '12px auto 0',
+  margin: '10px auto 0',
 }
 
 const imageStyle: React.CSSProperties = {
-  height: 180,
-  background: '#F0F4F2',
+  height: 90,
+  background: 'linear-gradient(135deg, #EAF2EE 0%, #D8EBE4 100%)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   position: 'relative',
-  marginTop: 8,
+  marginTop: 6,
 }
 
 const brokerBadgeStyle: React.CSSProperties = {
@@ -177,44 +177,44 @@ const closeBtnStyle: React.CSSProperties = {
 }
 
 const bodyStyle: React.CSSProperties = {
-  padding: '16px 16px 32px',
+  padding: '12px 16px 24px',
 }
 
 const priceRowStyle: React.CSSProperties = {
-  marginBottom: 6,
+  marginBottom: 2,
 }
 
 const totalPriceStyle: React.CSSProperties = {
-  fontSize: 26,
+  fontSize: 22,
   fontWeight: 800,
   color: '#2D6A4F',
   lineHeight: 1.2,
 }
 
 const perMonthStyle: React.CSSProperties = {
-  fontSize: 15,
+  fontSize: 13,
   fontWeight: 500,
   color: '#6C757D',
 }
 
 const priceBreakdownStyle: React.CSSProperties = {
-  fontSize: 12,
+  fontSize: 11,
   color: '#6C757D',
-  marginTop: 2,
+  marginTop: 1,
 }
 
 const addressStyle: React.CSSProperties = {
-  fontSize: 14,
+  fontSize: 13,
   color: '#6C757D',
-  marginBottom: 14,
-  marginTop: 6,
+  marginBottom: 10,
+  marginTop: 4,
 }
 
 const chipsStyle: React.CSSProperties = {
   display: 'flex',
   flexWrap: 'wrap',
-  gap: 8,
-  marginBottom: 20,
+  gap: 6,
+  marginBottom: 14,
 }
 
 const chipStyle: React.CSSProperties = {
@@ -222,8 +222,8 @@ const chipStyle: React.CSSProperties = {
   alignItems: 'center',
   background: '#F0F4F2',
   borderRadius: 8,
-  padding: '5px 10px',
-  fontSize: 13,
+  padding: '4px 9px',
+  fontSize: 12,
   color: '#1B1B1B',
   fontWeight: 500,
 }
@@ -238,17 +238,17 @@ const knockBtnStyle: React.CSSProperties = {
   width: '100%',
   background: '#2D6A4F',
   color: '#fff',
-  borderRadius: 14,
-  padding: '16px 0',
-  fontSize: 18,
+  borderRadius: 12,
+  padding: '13px 0',
+  fontSize: 16,
   fontWeight: 800,
   letterSpacing: 0.3,
-  boxShadow: '0 4px 14px rgba(45,106,79,0.35)',
+  boxShadow: '0 3px 10px rgba(45,106,79,0.3)',
 }
 
 const secondaryRowStyle: React.CSSProperties = {
   display: 'flex',
-  gap: 10,
+  gap: 8,
 }
 
 const secondaryBtnStyle: React.CSSProperties = {
@@ -256,11 +256,11 @@ const secondaryBtnStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 6,
+  gap: 5,
   background: '#F0F4F2',
   color: '#2D6A4F',
-  borderRadius: 12,
-  padding: '12px 0',
-  fontSize: 14,
+  borderRadius: 10,
+  padding: '10px 0',
+  fontSize: 13,
   fontWeight: 600,
 }
