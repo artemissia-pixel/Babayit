@@ -6,6 +6,7 @@ import {
 } from '@vis.gl/react-google-maps'
 import { ApartmentMarker } from './ApartmentMarker'
 import { ApartmentCard } from './ApartmentCard'
+import { UploadFlow } from './upload/UploadFlow'
 import { APARTMENTS, TEL_AVIV_CENTER, Apartment } from '@/constants/apartments'
 import { Colors } from '@/constants/colors'
 
@@ -17,14 +18,15 @@ if (!GOOGLE_MAPS_KEY) {
 
 export function MapScreen() {
   const { t } = useTranslation()
+  const [apartments, setApartments] = useState<Apartment[]>(APARTMENTS)
   const [selected, setSelected] = useState<Apartment | null>(null)
+  const [showUpload, setShowUpload] = useState(false)
 
-  const handleMarkerPress = (apt: Apartment) => {
-    setSelected(apt)
-  }
+  const handleMapClick = () => setSelected(null)
 
-  const handleMapClick = () => {
-    setSelected(null)
+  const handlePublish = (apt: Apartment) => {
+    setApartments((prev) => [apt, ...prev])
+    setShowUpload(false)
   }
 
   return (
@@ -53,12 +55,12 @@ export function MapScreen() {
             gestureHandling="greedy"
             style={{ width: '100%', height: '100%' }}
           >
-            {APARTMENTS.map((apt) => (
+            {apartments.map((apt) => (
               <ApartmentMarker
                 key={apt.id}
                 apartment={apt}
                 isSelected={selected?.id === apt.id}
-                onPress={handleMarkerPress}
+                onPress={setSelected}
               />
             ))}
           </Map>
@@ -66,14 +68,34 @@ export function MapScreen() {
 
         {/* Count badge */}
         <div style={countBadgeStyle}>
-          {t('map.apartmentsInArea', { count: APARTMENTS.length })}
+          {t('map.apartmentsInArea', { count: apartments.length })}
         </div>
 
+        {/* FAB — publish apartment */}
+        {!showUpload && (
+          <button
+            style={fabStyle}
+            onClick={() => { setSelected(null); setShowUpload(true) }}
+            aria-label="פרסם דירה"
+          >
+            <span style={fabIcon}>+</span>
+            <span style={fabLabel}>פרסם דירה</span>
+          </button>
+        )}
+
         {/* Apartment card */}
-        {selected && (
+        {selected && !showUpload && (
           <ApartmentCard
             apartment={selected}
             onClose={() => setSelected(null)}
+          />
+        )}
+
+        {/* Upload flow */}
+        {showUpload && (
+          <UploadFlow
+            onClose={() => setShowUpload(false)}
+            onPublish={handlePublish}
           />
         )}
       </div>
@@ -135,4 +157,36 @@ const countBadgeStyle: React.CSSProperties = {
   pointerEvents: 'none',
   whiteSpace: 'nowrap',
   zIndex: 10,
+}
+
+const fabStyle: React.CSSProperties = {
+  position: 'absolute',
+  bottom: 28,
+  left: '50%',
+  transform: 'translateX(-50%)',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  background: '#2D6A4F',
+  color: '#fff',
+  border: 'none',
+  borderRadius: 28,
+  padding: '13px 24px',
+  fontSize: 15,
+  fontWeight: 700,
+  boxShadow: '0 4px 18px rgba(45,106,79,0.4)',
+  cursor: 'pointer',
+  zIndex: 10,
+  whiteSpace: 'nowrap',
+  fontFamily: 'inherit',
+}
+
+const fabIcon: React.CSSProperties = {
+  fontSize: 22,
+  lineHeight: 1,
+  fontWeight: 300,
+}
+
+const fabLabel: React.CSSProperties = {
+  fontSize: 15,
 }
