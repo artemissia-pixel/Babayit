@@ -19,14 +19,28 @@ if (!GOOGLE_MAPS_KEY) {
 export function MapScreen() {
   const { t } = useTranslation()
   const [apartments, setApartments] = useState<Apartment[]>(APARTMENTS)
+  const [ownedIds, setOwnedIds] = useState<Set<string>>(new Set())
   const [selected, setSelected] = useState<Apartment | null>(null)
   const [showUpload, setShowUpload] = useState(false)
+  const [editTarget, setEditTarget] = useState<Apartment | undefined>(undefined)
 
   const handleMapClick = () => setSelected(null)
 
   const handlePublish = (apt: Apartment) => {
-    setApartments((prev) => [apt, ...prev])
+    setApartments((prev) => {
+      const exists = prev.some((a) => a.id === apt.id)
+      return exists ? prev.map((a) => a.id === apt.id ? apt : a) : [apt, ...prev]
+    })
+    setOwnedIds((prev) => new Set([...prev, apt.id]))
+    if (editTarget) setSelected(apt)   // re-select updated card
+    setEditTarget(undefined)
     setShowUpload(false)
+  }
+
+  const handleEdit = (apt: Apartment) => {
+    setEditTarget(apt)
+    setSelected(null)
+    setShowUpload(true)
   }
 
   return (
@@ -88,14 +102,16 @@ export function MapScreen() {
           <ApartmentCard
             apartment={selected}
             onClose={() => setSelected(null)}
+            onEdit={ownedIds.has(selected.id) ? () => handleEdit(selected) : undefined}
           />
         )}
 
-        {/* Upload flow */}
+        {/* Upload / edit flow */}
         {showUpload && (
           <UploadFlow
-            onClose={() => setShowUpload(false)}
+            onClose={() => { setShowUpload(false); setEditTarget(undefined) }}
             onPublish={handlePublish}
+            editApartment={editTarget}
           />
         )}
       </div>

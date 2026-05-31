@@ -8,7 +8,8 @@ interface Props {
 }
 
 export function Step3Submit({ data, submitting, onSubmit }: Props) {
-  const totalPrice = (data.price || 0) + (data.bills || 0)
+  const computedBills = (data.arnona || 0) + (data.avgBills || 0)
+  const totalPrice = (data.price || 0) + computedBills
 
   return (
     <div style={wrapper}>
@@ -29,8 +30,8 @@ export function Step3Submit({ data, submitting, onSubmit }: Props) {
       {/* Summary card */}
       <div style={summaryCard}>
         <Row label="מחיר כולל" value={`₪${totalPrice.toLocaleString('he-IL')} / חודש`} bold />
-        {data.bills > 0 && (
-          <Row label="פירוט" value={`שכ"ד ₪${data.price.toLocaleString()} + חשבונות ~₪${data.bills}`} />
+        {computedBills > 0 && (
+          <Row label="פירוט" value={`שכ"ד ₪${data.price.toLocaleString()} + חשבונות ~₪${computedBills}`} />
         )}
         <Divider />
         <Row label="חדרים" value={String(data.rooms)} />

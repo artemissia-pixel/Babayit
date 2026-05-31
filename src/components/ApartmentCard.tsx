@@ -5,9 +5,10 @@ import { Apartment } from '@/constants/apartments'
 interface Props {
   apartment: Apartment
   onClose: () => void
+  onEdit?: () => void   // only shown when caller provides it (i.e. the landlord)
 }
 
-export function ApartmentCard({ apartment, onClose }: Props) {
+export function ApartmentCard({ apartment, onClose, onEdit }: Props) {
   const { t } = useTranslation()
   const totalPrice = apartment.price + apartment.bills
   const photos = apartment.photos ?? []
@@ -114,6 +115,13 @@ export function ApartmentCard({ apartment, onClose }: Props) {
               <Chip key={i} icon={c.icon} label={c.label} />
             ))}
           </div>
+
+          {/* Edit button — landlord only */}
+          {onEdit && (
+            <button style={editBtnStyle} onClick={onEdit}>
+              ✏️ עריכת פרטים
+            </button>
+          )}
 
           {/* Actions */}
           <div style={actionsStyle}>
@@ -355,6 +363,20 @@ const knockBtnStyle: React.CSSProperties = {
 const secondaryRowStyle: React.CSSProperties = {
   display: 'flex',
   gap: 8,
+}
+
+const editBtnStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'none',
+  border: '1.5px solid #DEE2E6',
+  borderRadius: 10,
+  padding: '10px 0',
+  fontSize: 13,
+  fontWeight: 600,
+  color: '#6C757D',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  marginBottom: 10,
 }
 
 const secondaryBtnStyle: React.CSSProperties = {
