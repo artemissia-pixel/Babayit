@@ -16,6 +16,24 @@ export interface UploadData {
   lng: number
   phone: string
   whatsappEnabled: boolean
+  // optional extras
+  size: number
+  arnona: number
+  avgBills: number
+  suppliers: string
+  ac: boolean | null
+  internet: boolean | null
+  elevator: boolean | null
+  parking: boolean | null
+  storage: boolean | null
+  pets: 'allowed' | 'forbidden' | null
+  smoking: 'allowed' | 'forbidden' | null
+  guaranteeAmount: number
+  guaranteeType: string
+  minContractMonths: number
+  whatsLeft: string
+  paymentMethod: string
+  customFields: { label: string; value: string }[]
 }
 
 const EMPTY: UploadData = {
@@ -30,6 +48,23 @@ const EMPTY: UploadData = {
   lng: 0,
   phone: '',
   whatsappEnabled: false,
+  size: 0,
+  arnona: 0,
+  avgBills: 0,
+  suppliers: '',
+  ac: null,
+  internet: null,
+  elevator: null,
+  parking: null,
+  storage: null,
+  pets: null,
+  smoking: null,
+  guaranteeAmount: 0,
+  guaranteeType: '',
+  minContractMonths: 0,
+  whatsLeft: '',
+  paymentMethod: '',
+  customFields: [],
 }
 
 const STEPS = ['תמונות', 'פרטים', 'פרסום']
@@ -74,7 +109,7 @@ export function UploadFlow({ onClose, onPublish }: Props) {
         bills: data.bills,
         rooms: data.rooms,
         floor: data.floor,
-        size: 0,
+        size: data.size,
         address: data.address || `${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}`,
         availableFrom: formatDate(data.availableFrom),
         isBrokerage: false,
