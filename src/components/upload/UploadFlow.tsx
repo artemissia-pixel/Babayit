@@ -117,6 +117,11 @@ export function UploadFlow({ onClose, onPublish }: Props) {
         whatsapp: data.whatsappEnabled
           ? data.phone.replace(/\D/g, '').replace(/^0/, '972')
           : undefined,
+        photos: data.photos.length > 0 ? data.photos : undefined,
+        elevator: data.elevator,
+        parking: data.parking,
+        pets: data.pets,
+        smoking: data.smoking,
       }
       onPublish(apt)
       setSubmitting(false)

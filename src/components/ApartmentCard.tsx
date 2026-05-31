@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Apartment } from '@/constants/apartments'
 
@@ -10,6 +10,21 @@ interface Props {
 export function ApartmentCard({ apartment, onClose }: Props) {
   const { t } = useTranslation()
   const totalPrice = apartment.price + apartment.bills
+  const photos = apartment.photos ?? []
+  const [photoIndex, setPhotoIndex] = useState(0)
+
+  const hasPhoto = photos.length > 0
+
+  // Build optional info chips only for fields that are set
+  const optionalChips: { icon: string; label: string }[] = []
+  if (apartment.elevator === true)  optionalChips.push({ icon: '🛗', label: 'מעלית' })
+  if (apartment.elevator === false) optionalChips.push({ icon: '🚶', label: 'אין מעלית' })
+  if (apartment.parking === true)   optionalChips.push({ icon: '🅿️', label: 'חניה' })
+  if (apartment.parking === false)  optionalChips.push({ icon: '🚫', label: 'אין חניה' })
+  if (apartment.pets === 'allowed')   optionalChips.push({ icon: '🐾', label: 'חיות מחמד' })
+  if (apartment.pets === 'forbidden') optionalChips.push({ icon: '🚫', label: 'אין חיות' })
+  if (apartment.smoking === 'allowed')   optionalChips.push({ icon: '🚬', label: 'מותר לעשן' })
+  if (apartment.smoking === 'forbidden') optionalChips.push({ icon: '🚭', label: 'אסור לעשן' })
 
   return (
     <>
@@ -21,9 +36,45 @@ export function ApartmentCard({ apartment, onClose }: Props) {
         {/* Drag handle */}
         <div style={handleStyle} />
 
-        {/* Image placeholder */}
-        <div style={imageStyle}>
-          <span style={{ fontSize: 28, opacity: 0.35 }}>🏠</span>
+        {/* Image area */}
+        <div style={imageWrapStyle}>
+          {hasPhoto ? (
+            <>
+              <img
+                src={photos[photoIndex]}
+                alt=""
+                style={photoImgStyle}
+              />
+              {photos.length > 1 && (
+                <>
+                  <button
+                    style={{ ...navBtn, right: 8 }}
+                    onClick={() => setPhotoIndex((i) => (i + 1) % photos.length)}
+                    aria-label="הבא"
+                  >›</button>
+                  <button
+                    style={{ ...navBtn, left: 8 }}
+                    onClick={() => setPhotoIndex((i) => (i - 1 + photos.length) % photos.length)}
+                    aria-label="הקודם"
+                  >‹</button>
+                  <div style={dotRow}>
+                    {photos.map((_, i) => (
+                      <div
+                        key={i}
+                        style={{ ...dot, ...(i === photoIndex ? dotActive : {}) }}
+                        onClick={() => setPhotoIndex(i)}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <div style={placeholderStyle}>
+              <span style={{ fontSize: 28, opacity: 0.35 }}>🏠</span>
+            </div>
+          )}
+
           {apartment.isBrokerage && (
             <span style={brokerBadgeStyle}>{t('apartment.brokerageBadge')}</span>
           )}
@@ -35,38 +86,40 @@ export function ApartmentCard({ apartment, onClose }: Props) {
         {/* Body */}
         <div style={bodyStyle}>
 
-          {/* Total price — hero */}
+          {/* Total price */}
           <div style={priceRowStyle}>
-            <div>
-              <div style={totalPriceStyle}>
-                ₪{totalPrice.toLocaleString('he-IL')}
-                <span style={perMonthStyle}> / חודש</span>
-              </div>
+            <div style={totalPriceStyle}>
+              ₪{totalPrice.toLocaleString('he-IL')}
+              <span style={perMonthStyle}> / חודש</span>
+            </div>
+            {apartment.bills > 0 && (
               <div style={priceBreakdownStyle}>
                 שכ"ד ₪{apartment.price.toLocaleString('he-IL')} + חשבונות ~₪{apartment.bills}
               </div>
-            </div>
+            )}
           </div>
 
           {/* Address */}
-          <p style={addressStyle}>{apartment.address}</p>
+          <p style={addressStyle}>📍 {apartment.address}</p>
 
-          {/* Detail chips */}
+          {/* Core chips */}
           <div style={chipsStyle}>
             <Chip icon="🛏" label={`${apartment.rooms} ${t('apartment.rooms')}`} />
             <Chip icon="🏢" label={`${t('apartment.floor')} ${apartment.floor}`} />
-            <Chip icon="📐" label={`${apartment.size} ${t('apartment.sqm')}`} />
+            {apartment.size > 0 && (
+              <Chip icon="📐" label={`${apartment.size} ${t('apartment.sqm')}`} />
+            )}
             <Chip icon="📅" label={apartment.availableFrom} />
+            {optionalChips.map((c, i) => (
+              <Chip key={i} icon={c.icon} label={c.label} />
+            ))}
           </div>
 
-          {/* Action buttons */}
+          {/* Actions */}
           <div style={actionsStyle}>
-            {/* Primary CTA */}
             <button style={knockBtnStyle}>
               🚪 {t('apartment.knocking')}
             </button>
-
-            {/* Secondary row */}
             <div style={secondaryRowStyle}>
               <a
                 href={`tel:${apartment.phone}`}
@@ -74,24 +127,16 @@ export function ApartmentCard({ apartment, onClose }: Props) {
               >
                 📞 {t('apartment.call')}
               </a>
-
-              {apartment.whatsapp ? (
-                <a
-                  href={`https://wa.me/${apartment.whatsapp}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ ...secondaryBtnStyle, textDecoration: 'none' }}
-                >
-                  💬 {t('apartment.message')}
-                </a>
-              ) : (
-                <a
-                  href={`sms:${apartment.phone}`}
-                  style={{ ...secondaryBtnStyle, textDecoration: 'none' }}
-                >
-                  💬 {t('apartment.message')}
-                </a>
-              )}
+              <a
+                href={apartment.whatsapp
+                  ? `https://wa.me/${apartment.whatsapp}`
+                  : `sms:${apartment.phone}`}
+                target={apartment.whatsapp ? '_blank' : undefined}
+                rel="noopener noreferrer"
+                style={{ ...secondaryBtnStyle, textDecoration: 'none' }}
+              >
+                💬 {t('apartment.message')}
+              </a>
             </div>
           </div>
         </div>
@@ -138,42 +183,100 @@ const handleStyle: React.CSSProperties = {
   margin: '10px auto 0',
 }
 
-const imageStyle: React.CSSProperties = {
+const imageWrapStyle: React.CSSProperties = {
   height: 90,
+  position: 'relative',
+  marginTop: 6,
+  overflow: 'hidden',
+}
+
+const photoImgStyle: React.CSSProperties = {
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+}
+
+const placeholderStyle: React.CSSProperties = {
+  width: '100%',
+  height: '100%',
   background: 'linear-gradient(135deg, #EAF2EE 0%, #D8EBE4 100%)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  position: 'relative',
-  marginTop: 6,
+}
+
+const navBtn: React.CSSProperties = {
+  position: 'absolute',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  background: 'rgba(0,0,0,0.4)',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '50%',
+  width: 28,
+  height: 28,
+  fontSize: 18,
+  lineHeight: 1,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  zIndex: 2,
+  fontFamily: 'inherit',
+}
+
+const dotRow: React.CSSProperties = {
+  position: 'absolute',
+  bottom: 6,
+  left: '50%',
+  transform: 'translateX(-50%)',
+  display: 'flex',
+  gap: 4,
+}
+
+const dot: React.CSSProperties = {
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  background: 'rgba(255,255,255,0.55)',
+  cursor: 'pointer',
+}
+
+const dotActive: React.CSSProperties = {
+  background: '#fff',
 }
 
 const brokerBadgeStyle: React.CSSProperties = {
   position: 'absolute',
-  top: 12,
-  right: 12,
+  top: 8,
+  right: 8,
   background: '#F4A261',
   color: '#fff',
   borderRadius: 6,
   padding: '3px 10px',
   fontSize: 12,
   fontWeight: 600,
+  zIndex: 2,
 }
 
 const closeBtnStyle: React.CSSProperties = {
   position: 'absolute',
-  top: 12,
-  left: 12,
+  top: 8,
+  left: 8,
   background: 'rgba(0,0,0,0.35)',
   color: '#fff',
   borderRadius: '50%',
-  width: 32,
-  height: 32,
+  width: 28,
+  height: 28,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontSize: 14,
+  fontSize: 13,
   lineHeight: 1,
+  border: 'none',
+  cursor: 'pointer',
+  zIndex: 2,
+  fontFamily: 'inherit',
 }
 
 const bodyStyle: React.CSSProperties = {
@@ -181,7 +284,7 @@ const bodyStyle: React.CSSProperties = {
 }
 
 const priceRowStyle: React.CSSProperties = {
-  marginBottom: 2,
+  marginBottom: 4,
 }
 
 const totalPriceStyle: React.CSSProperties = {
@@ -244,6 +347,9 @@ const knockBtnStyle: React.CSSProperties = {
   fontWeight: 800,
   letterSpacing: 0.3,
   boxShadow: '0 3px 10px rgba(45,106,79,0.3)',
+  border: 'none',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
 }
 
 const secondaryRowStyle: React.CSSProperties = {

@@ -2,8 +2,8 @@ export interface Apartment {
   id: string
   lat: number
   lng: number
-  price: number          // base rent
-  bills: number          // avg monthly bills (water + electricity)
+  price: number
+  bills: number
   rooms: number
   floor: number
   size: number
@@ -11,7 +11,12 @@ export interface Apartment {
   availableFrom: string
   isBrokerage: boolean
   phone: string
-  whatsapp?: string      // present only if landlord enabled it
+  whatsapp?: string
+  photos?: string[]
+  elevator?: boolean | null
+  parking?: boolean | null
+  pets?: 'allowed' | 'forbidden' | null
+  smoking?: 'allowed' | 'forbidden' | null
 }
 
 export const APARTMENTS: Apartment[] = [
