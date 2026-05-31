@@ -11,6 +11,10 @@ import { Colors } from '@/constants/colors'
 
 const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''
 
+if (!GOOGLE_MAPS_KEY) {
+  console.warn('[BaBayit] VITE_GOOGLE_MAPS_API_KEY is not set. Map will not load.')
+}
+
 export function MapScreen() {
   const { t } = useTranslation()
   const [selected, setSelected] = useState<Apartment | null>(null)
@@ -43,7 +47,7 @@ export function MapScreen() {
           <Map
             defaultCenter={TEL_AVIV_CENTER}
             defaultZoom={14}
-            mapId="babayit-map"
+            mapId="DEMO_MAP_ID"
             onClick={handleMapClick}
             disableDefaultUI={false}
             gestureHandling="greedy"
