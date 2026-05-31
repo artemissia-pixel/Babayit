@@ -15,7 +15,9 @@
     "sqm": "מ״ר",
     "price": "₪{{amount}} לחודש",
     "available": "כניסה מ-{{date}}",
-    "knocking": "בבית? 🚪",
+    "knocking": "בבית?",
+    "call": "התקשר",
+    "message": "שלח הודעה",
     "save": "שמור",
     "details": "פרטים נוספים",
     "brokerageBadge": "תיווך"

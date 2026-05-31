@@ -61,25 +61,38 @@ export function ApartmentCard({ apartment, onClose }: Props) {
 
           {/* Action buttons */}
           <div style={actionsStyle}>
-            <a
-              href={`tel:${apartment.phone}`}
-              style={{ ...actionBtnStyle, background: '#2D6A4F', color: '#fff', textDecoration: 'none' }}
-            >
-              <span style={btnIconStyle}>📞</span>
-              {apartment.phone}
-            </a>
+            {/* Primary CTA */}
+            <button style={knockBtnStyle}>
+              🚪 {t('apartment.knocking')}
+            </button>
 
-            {apartment.whatsapp && (
+            {/* Secondary row */}
+            <div style={secondaryRowStyle}>
               <a
-                href={`https://wa.me/${apartment.whatsapp}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ ...actionBtnStyle, background: '#25D366', color: '#fff', textDecoration: 'none' }}
+                href={`tel:${apartment.phone}`}
+                style={{ ...secondaryBtnStyle, textDecoration: 'none' }}
               >
-                <span style={btnIconStyle}>💬</span>
-                וואטסאפ
+                📞 {t('apartment.call')}
               </a>
-            )}
+
+              {apartment.whatsapp ? (
+                <a
+                  href={`https://wa.me/${apartment.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ ...secondaryBtnStyle, textDecoration: 'none' }}
+                >
+                  💬 {t('apartment.message')}
+                </a>
+              ) : (
+                <a
+                  href={`sms:${apartment.phone}`}
+                  style={{ ...secondaryBtnStyle, textDecoration: 'none' }}
+                >
+                  💬 {t('apartment.message')}
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -221,17 +234,33 @@ const actionsStyle: React.CSSProperties = {
   gap: 10,
 }
 
-const actionBtnStyle: React.CSSProperties = {
+const knockBtnStyle: React.CSSProperties = {
+  width: '100%',
+  background: '#2D6A4F',
+  color: '#fff',
+  borderRadius: 14,
+  padding: '16px 0',
+  fontSize: 18,
+  fontWeight: 800,
+  letterSpacing: 0.3,
+  boxShadow: '0 4px 14px rgba(45,106,79,0.35)',
+}
+
+const secondaryRowStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: 10,
+}
+
+const secondaryBtnStyle: React.CSSProperties = {
+  flex: 1,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 8,
+  gap: 6,
+  background: '#F0F4F2',
+  color: '#2D6A4F',
   borderRadius: 12,
-  padding: '14px 0',
-  fontSize: 16,
-  fontWeight: 700,
-}
-
-const btnIconStyle: React.CSSProperties = {
-  fontSize: 18,
+  padding: '12px 0',
+  fontSize: 14,
+  fontWeight: 600,
 }

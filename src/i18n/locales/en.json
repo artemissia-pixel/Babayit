@@ -15,7 +15,9 @@
     "sqm": "sqm",
     "price": "₪{{amount}}/month",
     "available": "From {{date}}",
-    "knocking": "Anyone home? 🚪",
+    "knocking": "Anyone home?",
+    "call": "Call",
+    "message": "Message",
     "save": "Save",
     "details": "More details",
     "brokerageBadge": "Brokerage"
