@@ -1,22 +1,27 @@
 {
   "map": {
     "title": "BaBayit",
+    "subtitle": "Rental apartments",
+    "apartmentsInArea": "{{count}} apartments nearby",
     "loading": "Loading map...",
     "noApartments": "No apartments in this area yet",
-    "notifyMe": "Notify me when something is here"
+    "notifyMe": "Notify me when something is here",
+    "direct": "Direct",
+    "brokerage": "Brokerage"
   },
   "apartment": {
     "rooms": "rooms",
     "floor": "floor",
+    "sqm": "sqm",
     "price": "₪{{amount}}/month",
     "available": "From {{date}}",
-    "knocking": "Anyone home?",
-    "save": "Save apartment",
-    "details": "More details"
+    "knocking": "Anyone home? 🚪",
+    "save": "Save",
+    "details": "More details",
+    "brokerageBadge": "Brokerage"
   },
   "common": {
-    "close": "Close",
-    "back": "Back",
+    "close": "✕",
     "yes": "Yes",
     "no": "No"
   }

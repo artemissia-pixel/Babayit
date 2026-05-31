@@ -1,22 +1,27 @@
 {
   "map": {
     "title": "בבית",
+    "subtitle": "דירות להשכרה",
+    "apartmentsInArea": "{{count}} דירות באזור",
     "loading": "טוען מפה...",
     "noApartments": "אין דירות באזור זה כרגע",
-    "notifyMe": "הודע לי כשיהיה משהו כאן"
+    "notifyMe": "הודע לי כשיהיה משהו כאן",
+    "direct": "ישיר",
+    "brokerage": "תיווך"
   },
   "apartment": {
-    "rooms": "חדרים",
+    "rooms": "חד׳",
     "floor": "קומה",
+    "sqm": "מ״ר",
     "price": "₪{{amount}} לחודש",
     "available": "כניסה מ-{{date}}",
-    "knocking": "בבית?",
-    "save": "שמור דירה",
-    "details": "פרטים נוספים"
+    "knocking": "בבית? 🚪",
+    "save": "שמור",
+    "details": "פרטים נוספים",
+    "brokerageBadge": "תיווך"
   },
   "common": {
-    "close": "סגור",
-    "back": "חזור",
+    "close": "✕",
     "yes": "כן",
     "no": "לא"
   }

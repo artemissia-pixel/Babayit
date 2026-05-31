@@ -1,23 +1,21 @@
 export interface Apartment {
-  id: string;
-  coordinate: {
-    latitude: number;
-    longitude: number;
-  };
-  price: number;
-  rooms: number;
-  floor: number;
-  size: number;
-  address: string;
-  availableFrom: string;
-  isBrokerage: boolean;
-  images: string[];
+  id: string
+  lat: number
+  lng: number
+  price: number
+  rooms: number
+  floor: number
+  size: number
+  address: string
+  availableFrom: string
+  isBrokerage: boolean
 }
 
-export const DUMMY_APARTMENTS: Apartment[] = [
+export const APARTMENTS: Apartment[] = [
   {
     id: '1',
-    coordinate: { latitude: 32.0853, longitude: 34.7818 },
+    lat: 32.0853,
+    lng: 34.7818,
     price: 6500,
     rooms: 3,
     floor: 2,
@@ -25,11 +23,11 @@ export const DUMMY_APARTMENTS: Apartment[] = [
     address: 'רחוב דיזנגוף 120, תל אביב',
     availableFrom: '01/08/2026',
     isBrokerage: false,
-    images: [],
   },
   {
     id: '2',
-    coordinate: { latitude: 32.0871, longitude: 34.7845 },
+    lat: 32.0871,
+    lng: 34.7845,
     price: 4800,
     rooms: 2,
     floor: 4,
@@ -37,11 +35,11 @@ export const DUMMY_APARTMENTS: Apartment[] = [
     address: 'רחוב בן יהודה 45, תל אביב',
     availableFrom: '15/07/2026',
     isBrokerage: true,
-    images: [],
   },
   {
     id: '3',
-    coordinate: { latitude: 32.0829, longitude: 34.7792 },
+    lat: 32.0829,
+    lng: 34.7792,
     price: 8200,
     rooms: 4,
     floor: 6,
@@ -49,11 +47,11 @@ export const DUMMY_APARTMENTS: Apartment[] = [
     address: 'שדרות רוטשילד 80, תל אביב',
     availableFrom: '01/09/2026',
     isBrokerage: false,
-    images: [],
   },
   {
     id: '4',
-    coordinate: { latitude: 32.0862, longitude: 34.7801 },
+    lat: 32.0862,
+    lng: 34.7801,
     price: 5500,
     rooms: 3,
     floor: 1,
@@ -61,25 +59,19 @@ export const DUMMY_APARTMENTS: Apartment[] = [
     address: 'רחוב אלנבי 70, תל אביב',
     availableFrom: '01/07/2026',
     isBrokerage: false,
-    images: [],
   },
   {
     id: '5',
-    coordinate: { latitude: 32.0840, longitude: 34.7835 },
+    lat: 32.084,
+    lng: 34.7835,
     price: 7100,
-    rooms: 3.5,
+    rooms: 3,
     floor: 3,
     size: 85,
     address: 'רחוב פינסקר 22, תל אביב',
     availableFrom: '15/08/2026',
     isBrokerage: true,
-    images: [],
   },
-];
+]
 
-export const TEL_AVIV_CENTER = {
-  latitude: 32.0853,
-  longitude: 34.7818,
-  latitudeDelta: 0.04,
-  longitudeDelta: 0.04,
-};
+export const TEL_AVIV_CENTER = { lat: 32.0853, lng: 34.7818 }

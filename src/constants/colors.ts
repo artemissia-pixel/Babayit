@@ -2,15 +2,7 @@ export const Colors = {
   primary: '#2D6A4F',
   primaryLight: '#52B788',
   secondary: '#F4A261',
-  background: '#FFFFFF',
-  surface: '#F8F9FA',
-  text: '#1B1B1B',
-  textSecondary: '#6C757D',
-  border: '#DEE2E6',
-  error: '#DC3545',
-  markerDefault: '#2D6A4F',
+  markerDirect: '#2D6A4F',
   markerBrokerage: '#F4A261',
   markerSelected: '#1B4332',
-  white: '#FFFFFF',
-  shadow: '#000000',
-} as const;
+} as const

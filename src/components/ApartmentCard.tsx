@@ -1,174 +1,159 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  I18nManager,
-  Dimensions,
-} from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { Apartment } from '@/constants/dummyApartments';
-import { Colors } from '@/constants/colors';
-
-const { width } = Dimensions.get('window');
+import { useTranslation } from 'react-i18next'
+import { Apartment } from '@/constants/apartments'
 
 interface Props {
-  apartment: Apartment;
-  onClose: () => void;
+  apartment: Apartment
+  onClose: () => void
 }
 
-export const ApartmentCard: React.FC<Props> = ({ apartment, onClose }) => {
-  const { t } = useTranslation();
+export function ApartmentCard({ apartment, onClose }: Props) {
+  const { t } = useTranslation()
 
   return (
-    <View style={styles.container}>
-      <View style={styles.imagePlaceholder}>
-        <Text style={styles.imagePlaceholderText}>📷</Text>
-      </View>
-
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.price}>
-            {t('apartment.price', { amount: apartment.price.toLocaleString('he-IL') })}
-          </Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-            <Text style={styles.closeBtnText}>{t('common.close')}</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.address}>{apartment.address}</Text>
-
-        <View style={styles.details}>
-          <DetailChip label={`${apartment.rooms} ${t('apartment.rooms')}`} />
-          <DetailChip label={`${t('apartment.floor')} ${apartment.floor}`} />
-          <DetailChip label={`${apartment.size} מ"ר`} />
-        </View>
-
-        <Text style={styles.available}>
-          {t('apartment.available', { date: apartment.availableFrom })}
-        </Text>
-
+    <div style={card}>
+      {/* Image placeholder */}
+      <div style={imagePlaceholder}>
+        <span style={{ fontSize: 48 }}>📷</span>
         {apartment.isBrokerage && (
-          <View style={styles.brokerageBadge}>
-            <Text style={styles.brokerageBadgeText}>תיווך</Text>
-          </View>
+          <div style={brokerageBadge}>{t('apartment.brokerageBadge')}</div>
         )}
+      </div>
 
-        <TouchableOpacity style={styles.knockBtn}>
-          <Text style={styles.knockBtnText}>{t('apartment.knocking')}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-};
+      <div style={body}>
+        {/* Header row */}
+        <div style={headerRow}>
+          <span style={price}>
+            {t('apartment.price', { amount: apartment.price.toLocaleString('he-IL') })}
+          </span>
+          <button onClick={onClose} style={closeBtn} aria-label="סגור">
+            {t('common.close')}
+          </button>
+        </div>
 
-const DetailChip: React.FC<{ label: string }> = ({ label }) => (
-  <View style={styles.chip}>
-    <Text style={styles.chipText}>{label}</Text>
-  </View>
-);
+        <p style={address}>{apartment.address}</p>
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 32,
-    left: 16,
-    right: 16,
-    backgroundColor: Colors.background,
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: Colors.shadow,
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 8,
-    writingDirection: 'rtl',
-  },
-  imagePlaceholder: {
-    height: 160,
-    backgroundColor: Colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imagePlaceholderText: {
-    fontSize: 48,
-  },
-  content: {
-    padding: 16,
-  },
-  header: {
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  price: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.primary,
-    textAlign: 'right',
-  },
-  closeBtn: {
-    padding: 4,
-  },
-  closeBtnText: {
-    color: Colors.textSecondary,
-    fontSize: 14,
-  },
-  address: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    textAlign: 'right',
-    marginBottom: 10,
-  },
-  details: {
-    flexDirection: 'row-reverse',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 10,
-  },
-  chip: {
-    backgroundColor: Colors.surface,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  chipText: {
-    fontSize: 13,
-    color: Colors.text,
-    textAlign: 'right',
-  },
-  available: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    textAlign: 'right',
-    marginBottom: 12,
-  },
-  brokerageBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: Colors.secondary,
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    marginBottom: 12,
-  },
-  brokerageBadgeText: {
-    color: Colors.white,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  knockBtn: {
-    backgroundColor: Colors.primary,
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  knockBtnText: {
-    color: Colors.white,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-});
+        {/* Chips */}
+        <div style={chips}>
+          <Chip label={`${apartment.rooms} ${t('apartment.rooms')}`} />
+          <Chip label={`${t('apartment.floor')} ${apartment.floor}`} />
+          <Chip label={`${apartment.size} ${t('apartment.sqm')}`} />
+        </div>
+
+        <p style={available}>
+          {t('apartment.available', { date: apartment.availableFrom })}
+        </p>
+
+        <button style={knockBtn}>
+          {t('apartment.knocking')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function Chip({ label }: { label: string }) {
+  return (
+    <span style={{
+      background: '#F8F9FA',
+      border: '1px solid #DEE2E6',
+      borderRadius: 8,
+      padding: '4px 10px',
+      fontSize: 13,
+      color: '#1B1B1B',
+    }}>
+      {label}
+    </span>
+  )
+}
+
+// Inline styles (no CSS module deps, keeps it self-contained)
+const card: React.CSSProperties = {
+  position: 'absolute',
+  bottom: 32,
+  right: 16,
+  left: 16,
+  maxWidth: 420,
+  margin: '0 auto',
+  background: '#fff',
+  borderRadius: 16,
+  boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+  overflow: 'hidden',
+  zIndex: 20,
+  direction: 'rtl',
+}
+
+const imagePlaceholder: React.CSSProperties = {
+  height: 160,
+  background: '#F8F9FA',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  position: 'relative',
+}
+
+const brokerageBadge: React.CSSProperties = {
+  position: 'absolute',
+  top: 12,
+  right: 12,
+  background: '#F4A261',
+  color: '#fff',
+  borderRadius: 6,
+  padding: '3px 10px',
+  fontSize: 12,
+  fontWeight: 600,
+}
+
+const body: React.CSSProperties = {
+  padding: 16,
+}
+
+const headerRow: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 4,
+}
+
+const price: React.CSSProperties = {
+  fontSize: 20,
+  fontWeight: 700,
+  color: '#2D6A4F',
+}
+
+const closeBtn: React.CSSProperties = {
+  background: 'none',
+  fontSize: 16,
+  color: '#6C757D',
+  padding: 4,
+  lineHeight: 1,
+}
+
+const address: React.CSSProperties = {
+  fontSize: 14,
+  color: '#6C757D',
+  marginBottom: 10,
+}
+
+const chips: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'row-reverse',
+  flexWrap: 'wrap',
+  gap: 8,
+  marginBottom: 10,
+}
+
+const available: React.CSSProperties = {
+  fontSize: 13,
+  color: '#6C757D',
+  marginBottom: 14,
+}
+
+const knockBtn: React.CSSProperties = {
+  width: '100%',
+  background: '#2D6A4F',
+  color: '#fff',
+  borderRadius: 12,
+  padding: '14px 0',
+  fontSize: 16,
+  fontWeight: 700,
+}
